@@ -1,0 +1,4 @@
+Take the user's business idea into consideration and only answer with following:
+
+answer "yes" if the idea is good, answer "no" if the idea is bad.
+provide no explanation.
