@@ -2,7 +2,8 @@ from openai import OpenAI
 from dotenv import load_dotenv
 import requests
 import os
-import json 
+import json
+import subprocess 
 
 # SETUP THE ENVIRONMENT AND OPENAI CLIENT
 load_dotenv()
@@ -17,22 +18,48 @@ def get_weather(zipcode):
     response = result.json()
     return response
 
+# SECOND TOOL
+
+def run_shell(command): 
+    result = subprocess.run(
+        command,
+        shell=True,
+        capture_output=True,
+        text=True
+    )
+    return result.stdout 
+
 # TOOL SCHEMA - BLUEPRINT WHICH TELLS AI HOW THE USER DEFINED FUNC WORKS
 
 tools = [
     {
         "type": "function",
         "name": "get_weather",
-        "description": "Get current weather data for a city by providing its zip code",
+        "description": "Get current weather data for a city by providing its zipcode. will not work if city name is provided. zip code is mandatory.",
         "parameters": {
             "type": "object",
             "properties": {
                 "zipcode": {
                     "type": "string",
-                    "description": "the zipcode of the city you want to get the weather of",
+                    "description": "the zipcode of the city you want to get the weather of, will not work if city name is provided. zip code is mandatory.",
                 }
             },
             "required": ["zipcode"]
+        }
+    },
+    {
+        "type": "function",
+        "name": "run_shell",
+        "description": "run shell commands",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "command": {
+                    "type": "string",
+                    "description": "The linux shell command to execute"
+                }
+            },
+            "required": ["command"]
         }
     }
 ]
@@ -54,7 +81,8 @@ for item in response.output:
 
     if item.name == "get_weather":
         result = get_weather(args['zipcode'])
-        print("RAW TOOL DATA\n")
+    elif item.name == "run_shell":
+        result = run_shell(args['command'])
         print(result)
     else:
         result = "UNKNOWN TOOL EXECUTED"
