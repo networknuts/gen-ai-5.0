@@ -1,0 +1,47 @@
+services:
+  mcp-server:
+    image: mcp-server:latest
+    container_name: mcp-server
+    ports:
+      - "8080:80"
+    networks:
+      - mcp-net
+    restart: unless-stopped
+
+  mcp-client:
+    image: mcp-client-api:latest
+    container_name: mcp-client
+    env_file:
+      - .env
+    ports:
+      - "8001:8000"
+    depends_on:
+      - mcp-server
+    networks:
+      - mcp-net
+    restart: unless-stopped
+
+  frontend:
+    image: frontend:latest
+    container_name: frontend
+    ports:
+      - "3000:80"
+    depends_on:
+      - mcp-client
+    networks:
+      - mcp-net
+    restart: unless-stopped
+
+  ecommerce:
+    image: ecommerce:latest
+    container_name: ecommerce
+    ports:
+      - "8000:8000"
+    networks:
+      - mcp-net
+    restart: unless-stopped
+
+# -------- NETWORK --------
+networks:
+  mcp-net:
+    driver: bridge
