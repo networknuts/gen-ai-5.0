@@ -17,4 +17,4 @@ response = client.responses.create(
     input=user_input
 )
 
-print(response.output_text)
+print(response)
